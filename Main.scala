@@ -1,5 +1,29 @@
 import scala.collection.mutable
 
+case class Expr(term: Term, exprOpts: Seq[ExprOpt])
+case class ExprOpt(term: Term)
+
+case class Term(num: Int, termOpts: Seq[TermOpt])
+case class TermOpt(num: Int)
+
+class Interpreter(ast:Expr):
+  def interpret(): Int = eval(ast)
+
+  private def eval(expr: Expr): Int = 
+    var tmp = eval(expr.term)
+    expr.exprOpts.foreach { exprOpt =>
+      tmp += eval(exprOpt.term)
+    }
+    tmp
+
+  private def eval(term: Term): Int =
+    var tmp = term.num
+    term.termOpts.foreach { termOpt =>
+      tmp *= termOpt.num
+    }
+    tmp
+
+
 case class Token(tpe: TokenType, text: String, startPos: Int)
 
 enum TokenType:
