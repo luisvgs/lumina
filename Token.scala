@@ -1,4 +1,4 @@
-package Token
+package lumina.Token
 
 case class Token(tpe: TokenType, text: String, startPos: Int)
 

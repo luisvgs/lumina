@@ -1,5 +1,6 @@
+package lumina
 import scala.collection.mutable
-
+import lumina.Token 
 case class Expr(term: Term, exprOpts: Seq[ExprOpt])
 case class ExprOpt(term: Term)
 
@@ -24,10 +25,10 @@ class Interpreter(ast:Expr):
     tmp
 
 
-case class Token(tpe: TokenType, text: String, startPos: Int)
+// case class Token(tpe: TokenType, text: String, startPos: Int)
 
-enum TokenType:
-  case Minus, Plus, True, False, Integer, EOF
+// enum TokenType:
+//   case Minus, Plus, True, False, Integer, EOF
 
 class Lexer(input: String):
 
