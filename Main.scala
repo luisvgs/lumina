@@ -1,34 +1,45 @@
-package lumina
 import scala.collection.mutable
-import lumina.Token 
-case class Expr(term: Term, exprOpts: Seq[ExprOpt])
-case class ExprOpt(term: Term)
+import scala.collection.mutable.ArrayBuffer
+// enum Expr:
+//   case Int
 
-case class Term(num: Int, termOpts: Seq[TermOpt])
-case class TermOpt(num: Int)
+// case class Literal(num: Int)
+// case class Expr(term: Term, exprOpts: Seq[ExprOpt])
+case class Expr(n: Int)
+// case class ExprOpt(term: Term)
 
-class Interpreter(ast:Expr):
-  def interpret(): Int = eval(ast)
+// case class Term(num: Int, termOpts: Seq[TermOpt])
+// case class TermOpt(num: Int)
 
-  private def eval(expr: Expr): Int = 
-    var tmp = eval(expr.term)
-    expr.exprOpts.foreach { exprOpt =>
-      tmp += eval(exprOpt.term)
+class Interpreter(ast: Seq[Expr]):
+  def interpret(): Value = eval(ast)
+
+  private def eval(exprs: Seq[ Expr ]): Value = 
+    var res = Value.Null 
+    exprs.foreach { expr =>
+      res = stmt_eval(expr)
     }
-    tmp
+    res 
 
-  private def eval(term: Term): Int =
-    var tmp = term.num
-    term.termOpts.foreach { termOpt =>
-      tmp *= termOpt.num
-    }
-    tmp
+  private def stmt_eval(expr: Expr): Value = expr match {
+    case Expr(x) => Value.Integer(x)
+    case _ => ???
+  }
+    // var tmp = term.num
+    // term.termOpts.foreach { termOpt =>
+    //   tmp *= termOpt.num
+    // }
+    // tmp
 
 
-// case class Token(tpe: TokenType, text: String, startPos: Int)
+case class Token(tpe: TokenType, text: String, startPos: Int)
 
-// enum TokenType:
-//   case Minus, Plus, True, False, Integer, EOF
+enum Value:
+  case Boolean, Null
+  case Integer(x: Int)
+
+enum TokenType:
+  case Minus, Plus, True, False, Integer, EOF
 
 class Lexer(input: String):
 
@@ -83,7 +94,12 @@ class Lexer(input: String):
 @main def main(): Unit = {
   println("Hello there!!")
   // val lex = new Lexer("aaa").lex()
-  // println(lex)
+  val expr = Expr(33)
+  var ast = Seq.empty[Expr]
+  println(ast)
+  ast :+ expr
+  val interpreter = new Interpreter(ast).interpret()
+  println(interpreter)
 }
 
 // println(Lexer("1").lex())
