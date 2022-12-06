@@ -1,41 +1,64 @@
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-// enum Expr:
-//   case Int
+import math.Fractional.Implicits.infixFractionalOps
+import math.Integral.Implicits.infixIntegralOps
+import math.Numeric.Implicits.infixNumericOps
 
-// case class Literal(num: Int)
-// case class Expr(term: Term, exprOpts: Seq[ExprOpt])
-case class Expr(n: Int)
-// case class ExprOpt(term: Term)
+enum Expr:
+  case Integer(n: Int)
+  case Bool(b: Boolean)
+  case Binary(lhs: Expr, op: String, rhs: Expr)
 
-// case class Term(num: Int, termOpts: Seq[TermOpt])
-// case class TermOpt(num: Int)
+extension (v: Value)
+  def +(a: Value): Int = {
+    a match {
+      case Value.Integer(n) =>
+        v match {
+          case Value.Integer(m) => n + m
+          case _                => ???
+        }
+      case _ => ???
+    }
+  }
 
-class Interpreter(ast: Seq[Expr]):
+enum Opt:
+  case Plus, Minus, Div
+
+class Interpreter(ast: List[Expr]):
   def interpret(): Value = eval(ast)
 
-  private def eval(exprs: Seq[ Expr ]): Value = 
-    var res = Value.Null 
+  private def eval(exprs: Seq[Expr]): Value =
+    var res = Value.Null
     exprs.foreach { expr =>
       res = stmt_eval(expr)
     }
-    res 
+    res
+
+  private def get_op(op: String): Opt = op match {
+    case "+" => Opt.Plus
+    case "/" => Opt.Div
+    case "-" => Opt.Minus
+  }
 
   private def stmt_eval(expr: Expr): Value = expr match {
-    case Expr(x) => Value.Integer(x)
-    case _ => ???
+    case Expr.Integer(x) => Value.Integer(x)
+    case Expr.Bool(b)    => Value.Bool(b)
+    case Expr.Binary(lhs, op, rhs) => {
+      var x: Value = stmt_eval(lhs)
+      var y: Value = stmt_eval(lhs)
+      get_op(op) match {
+        case Opt.Plus  => Value.Integer(x + y)
+        case Opt.Minus => Value.Integer(1 - 1)
+        case Opt.Div   => Value.Integer(1 - 1)
+      }
+    }
   }
-    // var tmp = term.num
-    // term.termOpts.foreach { termOpt =>
-    //   tmp *= termOpt.num
-    // }
-    // tmp
-
 
 case class Token(tpe: TokenType, text: String, startPos: Int)
 
 enum Value:
-  case Boolean, Null
+  case Null
+  case Bool(b: Boolean)
   case Integer(x: Int)
 
 enum TokenType:
@@ -90,21 +113,8 @@ class Lexer(input: String):
     tokens.toList
   }
 
-
 @main def main(): Unit = {
-  println("Hello there!!")
-  // val lex = new Lexer("aaa").lex()
-  val expr = Expr(33)
-  var ast = Seq.empty[Expr]
-  println(ast)
-  ast :+ expr
+  var ast = List(Expr.Binary(Expr.Integer(10), "+", Expr.Integer(3)))
   val interpreter = new Interpreter(ast).interpret()
   println(interpreter)
 }
-
-// println(Lexer("1").lex())
-// @main def hello: Unit =
-//   println("Hello world!")
-//   println(msg)
-
-// def msg = "I was compiled by Scala 3. :)"
