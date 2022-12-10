@@ -4,6 +4,18 @@ import math.Fractional.Implicits.infixFractionalOps
 import math.Integral.Implicits.infixIntegralOps
 import math.Numeric.Implicits.infixNumericOps
 
+import cats.parse.{Parser0, Parser => P}
+import cats.parse.Rfc5234.digit
+
+def expr : P[Expr] = number | bool
+// def expr: P[Expr] = (expr ~ whitespace ~ P.char('+') ~ whitespace ~ expr_).as(Expr.Binary(Expr.Integer(1), "+", Expr.Integer(2))).orElse(expr_)
+def number : P[Expr]= digit.map((c: Char) => Expr.Integer(c.toInt))
+def whitespace: P[Unit] = P.charIn(" \t\r\n").void
+def whitespaces0 = whitespace.rep0.void
+def bool: P[Expr]= P.string("true").as(Expr.Bool(true)).orElse(P.string("false").as(Expr.Bool(false)))
+def parser: P[Expr] = expr 
+
+
 enum Expr:
   case Integer(n: Int)
   case Bool(b: Boolean)
@@ -114,7 +126,15 @@ class Lexer(input: String):
   }
 
 @main def main(): Unit = {
-  var ast = List(Expr.Binary(Expr.Integer(10), "+", Expr.Integer(3)))
+  val int_expr = parser.parse("2")
+  val unwrapped = int_expr match {
+    case Right(v) => v match {
+    case (_, m) => m
+  }
+  case Left(_) => ???
+}
+  var ast = List(unwrapped)
+  // var ast = List(Expr.Binary(Expr.Integer(10), "+", Expr.Integer(3)))
   val interpreter = new Interpreter(ast).interpret()
   println(interpreter)
 }
